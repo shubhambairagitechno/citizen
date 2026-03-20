@@ -152,21 +152,24 @@ const getPendingRegistrations = asyncHandler(async (req, res) => {
   }
 
   const { page = 1, limit = 10 } = req.query
-
   const skip = (page - 1) * limit
 
-  // Use the government user's city directly from the authenticated user
-  const governmentCity = req.user.city
-
-  if (!governmentCity) {
-    return errorResponse(res, "Government user city information is missing", 400)
+  // Load the Government profile to get the authoritative city/province/country
+  const Government = require("../models/Government")
+  const government = await Government.findOne({ userId: req.user._id })
+  if (!government) {
+    return errorResponse(res, "Government profile not found", 404)
   }
 
-  // Query directly from SocialProjectRegistration with city filter
+  console.log("[v0] getPendingRegistrations - government city:", government.city, "province:", government.province, "country:", government.country)
+
+  // Use case-insensitive regex so casing differences never cause mismatches
   const query = {
     status: "pending",
-    city: governmentCity,
+    city: { $regex: new RegExp(`^${government.city.trim()}$`, "i") },
   }
+
+  console.log("[v0] getPendingRegistrations - query:", JSON.stringify(query))
 
   const [registrations, total] = await Promise.all([
     SocialProjectRegistration.find(query)
@@ -177,6 +180,8 @@ const getPendingRegistrations = asyncHandler(async (req, res) => {
       .lean(),
     SocialProjectRegistration.countDocuments(query),
   ])
+
+  console.log("[v0] getPendingRegistrations - found:", total, "registrations")
 
   const pagination = {
     currentPage: Number.parseInt(page),
@@ -1004,17 +1009,27 @@ const getPendingProjectsApproval = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10 } = req.query
   const skip = (page - 1) * limit
 
+  // Load Government profile to get the authoritative city
+  const Government = require("../models/Government")
+  const government = await Government.findOne({ userId: req.user._id })
+  if (!government) {
+    return errorResponse(res, "Government profile not found", 404)
+  }
+
+  console.log("[v0] getPendingProjectsApproval - government city:", government.city)
+
+  // Only approved registrations from this city that have pending_approval projects
+  const query = {
+    status: "approved",
+    city: { $regex: new RegExp(`^${government.city.trim()}$`, "i") },
+    "projects.projectStatus": "pending_approval",
+  }
+
   const [registrations, total] = await Promise.all([
-    SocialProjectRegistration.find({
-      status: "approved",
-      "projects.projectStatus": "pending_approval",
-    })
+    SocialProjectRegistration.find(query)
       .populate("user", "fullName email")
       .lean(),
-    SocialProjectRegistration.countDocuments({
-      status: "approved",
-      "projects.projectStatus": "pending_approval",
-    }),
+    SocialProjectRegistration.countDocuments(query),
   ])
 
   const projects = registrations.flatMap((registration) =>
@@ -1038,6 +1053,8 @@ const getPendingProjectsApproval = asyncHandler(async (req, res) => {
         createdAt: project.publishedAt,
       })),
   )
+
+  console.log("[v0] getPendingProjectsApproval - found:", projects.length, "pending projects")
 
   const pagination = {
     currentPage: Number.parseInt(page),

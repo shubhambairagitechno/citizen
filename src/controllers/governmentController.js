@@ -300,25 +300,27 @@ const getPendingSocialProjectRegistrations = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, status = "pending" } = req.query
   const skip = (page - 1) * limit
 
-  // Fetch social project registrations from the same city
-  const registrations = await SocialProjectRegistration.find({
-    city: government.city,
-    country: government.country,
-    state: government.province,
+  console.log("[v0] getPendingSocialProjectRegistrations - government city:", government.city, "province:", government.province, "country:", government.country, "status filter:", status)
+
+  // Use case-insensitive regex on city/state/country so casing differences never cause mismatches
+  const filter = {
+    city: { $regex: new RegExp(`^${government.city.trim()}$`, "i") },
     status: status,
-  })
+  }
+
+  console.log("[v0] getPendingSocialProjectRegistrations - filter:", JSON.stringify(filter))
+
+  // Fetch social project registrations from the same city
+  const registrations = await SocialProjectRegistration.find(filter)
     .populate("user", "fullName email city")
     .skip(skip)
     .limit(Number(limit))
     .sort({ submittedAt: -1 })
     .lean()
 
-  const total = await SocialProjectRegistration.countDocuments({
-    city: government.city,
-    country: government.country,
-    state: government.province,
-    status: status,
-  })
+  const total = await SocialProjectRegistration.countDocuments(filter)
+
+  console.log("[v0] getPendingSocialProjectRegistrations - found:", total, "registrations")
 
   // Format response with projects
   const formattedRegistrations = registrations.map((reg) => ({
@@ -355,8 +357,8 @@ const approveSocialProjectRegistration = asyncHandler(async (req, res) => {
   const project = await SocialProjectRegistration.findById(projectId).populate("user", "fullName email")
   if (!project) return errorResponse(res, "Project registration not found", 404)
 
-  // City-based authorization check
-  if (project.city !== government.city || project.country !== government.country || project.state !== government.province) {
+  // City-based authorization check (case-insensitive)
+  if (project.city?.toLowerCase() !== government.city?.toLowerCase()) {
     return errorResponse(res, "Cannot approve project from a different city", 403)
   }
 
@@ -417,8 +419,8 @@ const rejectSocialProjectRegistration = asyncHandler(async (req, res) => {
   const project = await SocialProjectRegistration.findById(projectId).populate("user", "fullName email")
   if (!project) return errorResponse(res, "Project registration not found", 404)
 
-  // City-based authorization check
-  if (project.city !== government.city || project.country !== government.country || project.state !== government.province) {
+  // City-based authorization check (case-insensitive)
+  if (project.city?.toLowerCase() !== government.city?.toLowerCase()) {
     return errorResponse(res, "Cannot reject project from a different city", 403)
   }
 
