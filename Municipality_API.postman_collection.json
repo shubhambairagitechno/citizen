@@ -1,0 +1,1922 @@
+{
+  "info": {
+    "name": "Municipality Platform API",
+    "description": "Complete API collection for Municipality Platform. Set {{base_url}} to your server URL (e.g. http://localhost:5000). After login, set {{token}}, {{refresh_token}}, {{citizen_id}}, {{project_registration_id}}, {{project_id}}, {{token_request_id}}, {{fund_request_id}}, {{conversion_request_id}}, {{limit_id}} variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "refresh_token", "value": "", "type": "string" },
+    { "key": "citizen_id", "value": "", "type": "string" },
+    { "key": "project_registration_id", "value": "", "type": "string" },
+    { "key": "project_id", "value": "", "type": "string" },
+    { "key": "token_request_id", "value": "", "type": "string" },
+    { "key": "fund_request_id", "value": "", "type": "string" },
+    { "key": "conversion_request_id", "value": "", "type": "string" },
+    { "key": "limit_id", "value": "", "type": "string" },
+    { "key": "government_step1_id", "value": "", "type": "string" },
+    { "key": "update_id", "value": "", "type": "string" },
+    { "key": "comment_id", "value": "", "type": "string" },
+    { "key": "approval_id", "value": "", "type": "string" },
+    { "key": "token_claim_id", "value": "", "type": "string" },
+    { "key": "username", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01 - Auth",
+      "item": [
+        {
+          "name": "Register (Citizen / Social Project / Government)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"username\": \"johndoe\",\n  \"password\": \"Password@123\",\n  \"userType\": \"citizen\",\n  \"country\": \"India\",\n  \"province\": \"MP\",\n  \"city\": \"Indore\",\n  \"agreedToTerms\": true,\n  \"agreedToPrivacy\": true\n}"
+            },
+            "description": "userType: 'citizen' | 'social_project' | 'government'"
+          }
+        },
+        {
+          "name": "Register Social Project User (Auto Username)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register/social",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Green Park Initiative\",\n  \"email\": \"greenpark@example.com\",\n  \"password\": \"Password@123\",\n  \"country\": \"India\",\n  \"province\": \"MP\",\n  \"city\": \"Indore\",\n  \"agreedToTerms\": true,\n  \"agreedToPrivacy\": true\n}"
+            },
+            "description": "Registers a social_project user. Username is auto-generated from fullName."
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"john@example.com\",\n  \"password\": \"Password@123\"\n}"
+            },
+            "description": "identifier = email OR username. Returns token and refreshToken."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/auth/logout",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/refresh",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Email (OTP)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/verify-email",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend Verification (Public - no auth)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/resend-verification-public",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resend Verification (Authenticated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/auth/resend-verification",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/forgot-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Reset Password OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/reset-password/verify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "description": "Returns resetToken to use in Reset Password."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/reset-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resetToken\": \"<token_from_verify_step>\",\n  \"newPassword\": \"NewPassword@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me (Current User)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Superadmin",
+      "item": [
+        {
+          "name": "Superadmin Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/super/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@municipality.com\",\n  \"password\": \"SuperAdmin@123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - User Profile & Settings",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/profile"
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/user/profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe Updated\",\n  \"country\": \"India\",\n  \"province\": \"MP\",\n  \"city\": \"Indore\",\n  \"phoneNumber\": \"+91-9876543210\",\n  \"bio\": \"Citizen of Indore\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/stats"
+          }
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/avatar",
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "avatar", "type": "file", "src": "" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Avatar",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/avatar"
+          }
+        },
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/settings"
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/user/settings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"privacy\": {\n    \"profileVisibility\": \"public\",\n    \"showEmail\": false,\n    \"showPhone\": false\n  },\n  \"notifications\": {\n    \"email\": true,\n    \"push\": true\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/user/change-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Password@123\",\n  \"newPassword\": \"NewPassword@123\",\n  \"confirmPassword\": \"NewPassword@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Activity",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/activity"
+          }
+        },
+        {
+          "name": "Get Wallet",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/wallet"
+          }
+        },
+        {
+          "name": "Get Wallet Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/wallet/transactions"
+          }
+        },
+        {
+          "name": "Get Wallet Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/wallet/stats"
+          }
+        },
+        {
+          "name": "Deactivate Account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/user/deactivate",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/user/account"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Public Profiles",
+      "item": [
+        {
+          "name": "Get Public Profile by Username",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/profile/{{username}}"
+          }
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/profile/search?q=john&userType=citizen&page=1&limit=20",
+              "query": [
+                { "key": "q", "value": "john" },
+                { "key": "userType", "value": "citizen" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Public Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/profile/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Government Registration",
+      "item": [
+        {
+          "name": "Step 1 - Institutional Info",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/government/register/step-1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"governmentName\": \"Indore Municipal Corporation\",\n  \"entityType\": \"municipal_corporation\",\n  \"country\": \"India\",\n  \"province\": \"MP\",\n  \"city\": \"Indore\",\n  \"representativeName\": \"Rajesh Kumar\",\n  \"representativeRole\": \"Commissioner\",\n  \"institutionalEmail\": \"commissioner@indore.gov.in\"\n}"
+            },
+            "description": "Save the returned _id as {{government_step1_id}}"
+          }
+        },
+        {
+          "name": "Step 2 - Consents & Submit",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/government/register/step-2/{{government_step1_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"officialWebsite\": \"https://indore.gov.in\",\n  \"comments\": \"Official registration\",\n  \"consentContactBeforeActivation\": true,\n  \"acceptedTermsAndConditions\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Government Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/government/profile"
+          }
+        },
+        {
+          "name": "Update Government Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"representativeName\": \"Rajesh Kumar\",\n  \"representativeRole\": \"Commissioner\",\n  \"officialWebsite\": \"https://indore.gov.in\",\n  \"comments\": \"Updated profile\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Government — Citizen Management",
+      "item": [
+        {
+          "name": "Get Pending Citizens (city-scoped)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/government/registrations/citizens?approvalStatus=pending&page=1&limit=20",
+              "query": [
+                { "key": "approvalStatus", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Citizen",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/citizens/{{citizen_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvalNotes\": \"Verified citizen of Indore\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Citizen",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/citizens/{{citizen_id}}/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Documents not matching city records\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Citizens",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/citizens"
+          }
+        },
+        {
+          "name": "Get Single Citizen Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/citizens/{{citizen_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Government — Social Project Registration Approval",
+      "item": [
+        {
+          "name": "Get Pending Social Project Registrations (city-scoped)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/government/registrations/projects?status=pending&page=1&limit=20",
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "status: pending | approved | rejected"
+          }
+        },
+        {
+          "name": "Approve Social Project Registration (Org-level)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/registrations/projects/{{project_registration_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvalNotes\": \"Organization verified and approved\"\n}"
+            },
+            "description": "Approves the REGISTRATION (org). Individual projects still need separate approval."
+          }
+        },
+        {
+          "name": "Reject Social Project Registration (Org-level)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/registrations/projects/{{project_registration_id}}/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Organization documents are incomplete\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Government — Individual Project Approval",
+      "item": [
+        {
+          "name": "Get Pending Individual Projects (city-scoped)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/social-projects/pending-approval?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Individual Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/social-projects/{{project_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"active\",\n  \"fundingGoal\": 1000,\n  \"citizenTokenLimit\": 5\n}"
+            },
+            "description": "decision: 'active' (approve) or 'rejected'. fundingGoal and citizenTokenLimit required when decision='active'."
+          }
+        },
+        {
+          "name": "Reject Individual Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/social-projects/{{project_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"rejected\",\n  \"rejectionReason\": \"Project does not meet city requirements\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Government — Token Request Management",
+      "item": [
+        {
+          "name": "Get Pending Token Requests (city-scoped)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/government/token-requests?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Token Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/token-requests/{{token_request_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100\n}"
+            },
+            "description": "amount = number of tokens to issue. Citizen must then claim them separately."
+          }
+        },
+        {
+          "name": "Reject Token Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/token-requests/{{token_request_id}}/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Proof document is not valid\",\n  \"reviewNotes\": \"Please resubmit with a valid tax document\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Government — Token Claim Management",
+      "item": [
+        {
+          "name": "Get Pending Token Claims",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/government/token-claims?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Token Claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/token-claims/{{token_claim_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvalNotes\": \"Claim verified\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Token Claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/token-claims/{{token_claim_id}}/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Claim does not meet eligibility criteria\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Government — Fund Request Management",
+      "item": [
+        {
+          "name": "Get Pending Fund Requests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/government/fund-requests?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Fund Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/fund-requests/{{fund_request_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvalNotes\": \"Fund request verified and approved\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Fund Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/fund-requests/{{fund_request_id}}/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Insufficient documentation provided\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Government — Manual Token Operations",
+      "item": [
+        {
+          "name": "Issue Tokens Manually",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/tokens/issue",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"{{citizen_id}}\",\n  \"amount\": 50,\n  \"reason\": \"Manual civic participation reward\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Transfer Tokens",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/government/tokens/transfer",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromUserId\": \"{{citizen_id}}\",\n  \"toUserId\": \"<target_user_id>\",\n  \"amount\": 10,\n  \"reason\": \"Token transfer\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Social Project — Registration",
+      "item": [
+        {
+          "name": "Submit Registration (multipart with documents)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/register",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "projectOrganizationName", "value": "Green Park Initiative", "type": "text" },
+                { "key": "allowedProjectTypes", "value": "environmental", "type": "text" },
+                { "key": "allowedProjectTypes", "value": "community", "type": "text" },
+                { "key": "city", "value": "Indore", "type": "text" },
+                { "key": "state", "value": "MP", "type": "text" },
+                { "key": "country", "value": "India", "type": "text" },
+                { "key": "responsiblePersonFullName", "value": "Maria Rodriguez", "type": "text" },
+                { "key": "personPositionRole", "value": "Project Manager", "type": "text" },
+                { "key": "contactNumber", "value": "+91-9876543210", "type": "text" },
+                { "key": "emailAddress", "value": "contact@greenpark.org", "type": "text" },
+                { "key": "registrationNotes", "value": "We are committed to environmental sustainability", "type": "text" },
+                { "key": "documents", "src": "", "type": "file" }
+              ]
+            },
+            "description": "Requires social_project auth. allowedProjectTypes can be sent multiple times. documents is optional (max 5 files)."
+          }
+        },
+        {
+          "name": "Get My Registration",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/my-registration"
+          }
+        },
+        {
+          "name": "Get Registration Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/registrations/stats"
+          }
+        },
+        {
+          "name": "Get Pending Registrations (Government view)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/social-projects/registrations/pending?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Process Registration Decision (approve/reject)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/social-projects/registrations/{{project_registration_id}}/decision",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"approved\",\n  \"approvalNotes\": \"Verified and approved\"\n}"
+            },
+            "description": "decision: 'approved' | 'rejected'. Government only."
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Social Project — Project CRUD",
+      "item": [
+        {
+          "name": "Create Project (after registration approved)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/create",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "projectTitle", "value": "Clean Indore Parks", "type": "text" },
+                { "key": "projectType", "value": "environmental", "type": "text" },
+                { "key": "projectDescription", "value": "A project to clean and maintain public parks in Indore", "type": "text" },
+                { "key": "startDate", "value": "2026-04-01", "type": "text" },
+                { "key": "endDate", "value": "2026-12-31", "type": "text" },
+                { "key": "representativeName", "value": "Maria Rodriguez", "type": "text" },
+                { "key": "email", "value": "contact@greenpark.org", "type": "text" },
+                { "key": "documentation", "src": "", "type": "file" }
+              ]
+            },
+            "description": "city/state/country are inherited from the registration. documentation is optional (max 5 files)."
+          }
+        },
+        {
+          "name": "Get My Projects",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/my-projects"
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/{{project_id}}/update",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "projectTitle", "value": "Clean Indore Parks - Updated", "type": "text" },
+                { "key": "projectDescription", "value": "Updated description", "type": "text" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Social Projects — Public & Citizen Views",
+      "item": [
+        {
+          "name": "Get All Active Projects (Public, no auth)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/social-projects/"
+          }
+        },
+        {
+          "name": "Get Active Projects (Public, with optional auth & city filter)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/social-projects/public/active?city=Indore&page=1&limit=10",
+              "query": [
+                { "key": "city", "value": "Indore" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "If authenticated as citizen, auto-filters by citizen's city."
+          }
+        },
+        {
+          "name": "Get Citizen My-City Projects (auth citizen)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/social-projects/citizen/my-city?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Returns all projects (pending_approval + active) from citizen's city. canSupport=true only for active projects."
+          }
+        },
+        {
+          "name": "Get Project Public Details",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/social-projects/public/{{project_id}}"
+          }
+        },
+        {
+          "name": "Get Project Funding Details",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/social-projects/{{project_id}}/funding"
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Citizen — Token Operations",
+      "item": [
+        {
+          "name": "Get Token Balance",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/tokens/balance"
+          }
+        },
+        {
+          "name": "Submit Token Claim",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/tokens/claim",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claimAmount\": 50,\n  \"claimReason\": \"Civic participation reward\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Token Claims",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/tokens/my-claims"
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Citizen — Token Requests (Proof-based)",
+      "item": [
+        {
+          "name": "Create Token Request (with proof document)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/token-requests",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "proofDocument", "src": "", "type": "file" }
+              ]
+            },
+            "description": "Citizen must be approved (approvalStatus=approved). Attach proof document (image or PDF, max 10MB)."
+          }
+        },
+        {
+          "name": "Get My Token Requests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/token-requests?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Token Request Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/token-requests/{{token_request_id}}"
+          }
+        },
+        {
+          "name": "Get Pending Claims (approved but not yet claimed)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/token-requests/pending-claims"
+          }
+        },
+        {
+          "name": "Claim Approved Tokens (single request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-requests/{{token_request_id}}/claim",
+            "body": { "mode": "raw", "raw": "{}" },
+            "description": "Adds approved tokens to citizen wallet. Citizen must be approved."
+          }
+        },
+        {
+          "name": "Claim All Pending Tokens",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-requests/claim-all",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Get Token Requests (Government view)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/token-requests/government?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Citizen — Project Support (Tokens)",
+      "item": [
+        {
+          "name": "Support Project with Tokens",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/projects/{{project_id}}/support",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tokensToSpend\": 5\n}"
+            },
+            "description": "Citizen must be approved. Project must be active (government-approved). Max 5 tokens per citizen per project."
+          }
+        },
+        {
+          "name": "Get My Supported Projects",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/projects/my-supported?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Project Supporters",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/projects/{{project_id}}/supporters"
+          }
+        },
+        {
+          "name": "Get Project Support Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/projects/{{project_id}}/support-stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 - Fund Requests",
+      "item": [
+        {
+          "name": "Create Fund Request (with bank proof)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/fund-requests",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "projectId", "value": "{{project_registration_id}}", "type": "text" },
+                { "key": "tokenAmount", "value": "500", "type": "text" },
+                { "key": "requestedFiatAmount", "value": "5000", "type": "text" },
+                { "key": "fiatCurrency", "value": "INR", "type": "text" },
+                { "key": "bankDetails[bankName]", "value": "State Bank of India", "type": "text" },
+                { "key": "bankDetails[accountHolder]", "value": "Green Park Initiative", "type": "text" },
+                { "key": "bankDetails[accountNumber]", "value": "1234567890", "type": "text" },
+                { "key": "bankDetails[accountType]", "value": "current", "type": "text" },
+                { "key": "bankDetails[swiftCode]", "value": "SBININBB", "type": "text" },
+                { "key": "bankTransferProof", "src": "", "type": "file" }
+              ]
+            },
+            "description": "Social project user only. Requires bankTransferProof file (image or PDF, max 10MB)."
+          }
+        },
+        {
+          "name": "Get My Fund Requests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/fund-requests?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fund Request Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/fund-requests/{{fund_request_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 - Token to Fiat Conversion",
+      "item": [
+        {
+          "name": "Check Project Goal Completion",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/token-conversion/check-project-goal/{{project_id}}"
+          }
+        },
+        {
+          "name": "Request Token Conversion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-conversion/request",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{project_id}}\",\n  \"tokenAmount\": 500,\n  \"fiatCurrency\": \"INR\",\n  \"conversionRate\": 10,\n  \"bankDetails\": {\n    \"accountHolderName\": \"Green Park Initiative\",\n    \"bankName\": \"State Bank of India\",\n    \"accountNumber\": \"1234567890\",\n    \"ifscCode\": \"SBIN0001234\",\n    \"swiftCode\": \"SBININBB\",\n    \"country\": \"India\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Conversion History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/token-conversion/user/history?page=1&limit=20",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Conversion Request Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/token-conversion/requests/{{conversion_request_id}}"
+          }
+        },
+        {
+          "name": "Add Comment to Conversion Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-conversion/requests/{{conversion_request_id}}/comment",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Please process this at the earliest\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Conversion Requests (Government)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/token-conversion/?status=pending&page=1&limit=20",
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Conversion Request (Government)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-conversion/requests/{{conversion_request_id}}/approve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"internalNotes\": \"Verified and approved for payment\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Conversion Request (Government)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-conversion/requests/{{conversion_request_id}}/reject",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Bank details verification failed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Conversion as Paid (Government)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/token-conversion/requests/{{conversion_request_id}}/mark-paid",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"TXN-BANK-20260320-001\",\n  \"paymentMethod\": \"bank_transfer\",\n  \"paymentNotes\": \"Transferred via NEFT\",\n  \"bankTransferDetails\": {\n    \"referenceNumber\": \"NEFT20260320001\",\n    \"bankName\": \"State Bank of India\"\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 - Allocation Limits",
+      "item": [
+        {
+          "name": "Set Allocation Limits (Government)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/allocation-limits/set",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectRegistrationId\": \"{{project_registration_id}}\",\n  \"projectId\": \"{{project_id}}\",\n  \"citizenTokenLimit\": 5,\n  \"projectTokenLimit\": 1000,\n  \"notes\": \"Standard civic token limits\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Allocation Limits for Project",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/allocation-limits/{{project_registration_id}}/{{project_id}}"
+          }
+        },
+        {
+          "name": "Get All Limits by Registration (Government)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/allocation-limits/registration/{{project_registration_id}}?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Allocation Limit (Government)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/allocation-limits/{{limit_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"citizenTokenLimit\": 10,\n  \"projectTokenLimit\": 2000,\n  \"status\": \"active\",\n  \"notes\": \"Updated limits\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Citizen Spending on Project",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/allocation-limits/{{project_id}}/citizen-spending"
+          }
+        },
+        {
+          "name": "Get Project Funding Status with Limits",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/allocation-limits/{{project_registration_id}}/{{project_id}}/funding-status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 - Project Updates",
+      "item": [
+        {
+          "name": "Create Project Update",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/social-projects/{{project_id}}/updates",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Phase 1 Complete", "type": "text" },
+                { "key": "content", "value": "We have successfully completed Phase 1 of the park cleanup.", "type": "text" },
+                { "key": "media", "src": "", "type": "file" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Project Updates",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/social-projects/{{project_id}}/updates"
+          }
+        },
+        {
+          "name": "Get Update by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/updates/{{update_id}}"
+          }
+        },
+        {
+          "name": "Update a Project Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/updates/{{update_id}}",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Phase 1 Complete - Revised", "type": "text" },
+                { "key": "content", "value": "Updated content", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Project Update",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/updates/{{update_id}}"
+          }
+        },
+        {
+          "name": "Like Update",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/updates/{{update_id}}/like",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Unlike Update",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/updates/{{update_id}}/like"
+          }
+        },
+        {
+          "name": "Add Comment to Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/updates/{{update_id}}/comments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Great progress!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Update Comments",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/updates/{{update_id}}/comments"
+          }
+        },
+        {
+          "name": "Remove Comment from Update",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/updates/{{update_id}}/comments/{{comment_id}}"
+          }
+        },
+        {
+          "name": "Get All Updates Randomly",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/updates/random/all"
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 - Comments",
+      "item": [
+        {
+          "name": "Get Comments (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/comments?projectId={{project_id}}&page=1&limit=20",
+              "query": [
+                { "key": "projectId", "value": "{{project_id}}" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Comment Replies (Public)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/comments/{{comment_id}}/replies"
+          }
+        },
+        {
+          "name": "Create Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/comments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{project_id}}\",\n  \"content\": \"This is a great initiative!\",\n  \"parentId\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/comments/{{comment_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated comment text\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/comments/{{comment_id}}"
+          }
+        },
+        {
+          "name": "Flag Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/comments/{{comment_id}}/flag",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Spam\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "24 - Dashboard (Government)",
+      "item": [
+        {
+          "name": "Overview",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/dashboard/overview"
+          }
+        },
+        {
+          "name": "User Engagement",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/dashboard/engagement"
+          }
+        },
+        {
+          "name": "Financial Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/dashboard/financial"
+          }
+        },
+        {
+          "name": "System Health",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/dashboard/health"
+          }
+        },
+        {
+          "name": "Detailed Reports",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/dashboard/reports"
+          }
+        }
+      ]
+    },
+    {
+      "name": "25 - Ecosystem (Government)",
+      "item": [
+        {
+          "name": "Get Ecosystem Overview",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/ecosystem/overview"
+          }
+        },
+        {
+          "name": "Get All Citizens (Ecosystem)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/ecosystem/citizens"
+          }
+        },
+        {
+          "name": "Get All Projects (Ecosystem)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/ecosystem/projects"
+          }
+        },
+        {
+          "name": "Manage Citizen Account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/ecosystem/citizens/{{citizen_id}}/manage",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"suspend\",\n  \"reason\": \"Policy violation\"\n}"
+            },
+            "description": "action: suspend | activate | verify | unverify"
+          }
+        },
+        {
+          "name": "Manage Project Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/ecosystem/projects/{{project_id}}/manage",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\",\n  \"reason\": \"Meets all requirements\"\n}"
+            },
+            "description": "action: approve | suspend | reject | complete"
+          }
+        },
+        {
+          "name": "Get Allocation Limits (Ecosystem)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/ecosystem/limits"
+          }
+        },
+        {
+          "name": "Set Allocation Limits (Ecosystem)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/ecosystem/limits",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"citizenLimit\": 100,\n  \"projectLimit\": 10000,\n  \"dailyIssuanceLimit\": 500000\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "26 - Admin Approvals",
+      "item": [
+        {
+          "name": "Get Pending Approvals",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/admin/approvals"
+          }
+        },
+        {
+          "name": "Get Approval Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/admin/approvals/stats"
+          }
+        },
+        {
+          "name": "Get Approval Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/admin/approvals/{{approval_id}}"
+          }
+        },
+        {
+          "name": "Process Approval Decision",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/admin/approvals/{{approval_id}}/decision",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"approved\",\n  \"notes\": \"Verified by superadmin\"\n}"
+            },
+            "description": "decision: 'approved' | 'rejected'"
+          }
+        }
+      ]
+    },
+    {
+      "name": "27 - Policies",
+      "item": [
+        {
+          "name": "Get Policy by Type (Public)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/policies/terms_of_service"
+          }
+        },
+        {
+          "name": "Get All Policies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/policies/"
+          }
+        },
+        {
+          "name": "Create or Update Policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/policies/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policyType\": \"terms_of_service\",\n  \"title\": \"Terms of Service\",\n  \"content\": \"Full terms content here...\",\n  \"version\": \"1.0\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Policy Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/policies/{{approval_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Policy Version History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/policies/terms_of_service/history"
+          }
+        },
+        {
+          "name": "Get Specific Policy Version",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/policies/terms_of_service/version/1"
+          }
+        },
+        {
+          "name": "Restore Policy Version",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/policies/terms_of_service/restore/1",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "28 - Analytics",
+      "item": [
+        {
+          "name": "Get User Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/analytics/users/{{citizen_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "29 - Media",
+      "item": [
+        {
+          "name": "Get Media Info (Public)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/media/info/project/{{project_id}}"
+          }
+        },
+        {
+          "name": "Upload Project Documents",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/media/projects/{{project_id}}/documents",
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "documents", "src": "", "type": "file" }]
+            }
+          }
+        },
+        {
+          "name": "Upload Project Images",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/media/projects/{{project_id}}/images",
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "images", "src": "", "type": "file" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Project Document",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/media/projects/{{project_id}}/documents/{{comment_id}}"
+          }
+        },
+        {
+          "name": "Delete Project Image",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/media/projects/{{project_id}}/images/{{comment_id}}"
+          }
+        },
+        {
+          "name": "Update Media Caption",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/media/caption",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mediaId\": \"<media_id>\",\n  \"caption\": \"New caption text\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "30 - Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health"
+          }
+        }
+      ]
+    }
+  ]
+}
