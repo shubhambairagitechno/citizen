@@ -174,11 +174,11 @@ const tokenToFiatConversionSchema = new mongoose.Schema(
   },
 )
 
-// Indexes — { status, createdAt } compound covers status-only queries as prefix; no standalone needed
+// Indexes
 tokenToFiatConversionSchema.index({ socialProjectUser: 1 })
 tokenToFiatConversionSchema.index({ relatedProject: 1 })
 tokenToFiatConversionSchema.index({ governmentUser: 1 })
+tokenToFiatConversionSchema.index({ socialProjectUser: 1, status: 1 })
 tokenToFiatConversionSchema.index({ createdAt: -1 })
-tokenToFiatConversionSchema.index({ status: 1, createdAt: -1 })
 
 module.exports = mongoose.model("TokenToFiatConversion", tokenToFiatConversionSchema)

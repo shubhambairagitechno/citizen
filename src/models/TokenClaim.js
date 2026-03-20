@@ -97,7 +97,7 @@ const tokenClaimSchema = new mongoose.Schema(
 
 // Indexes
 tokenClaimSchema.index({ claimant: 1, createdAt: -1 })
-tokenClaimSchema.index({ status: 1, createdAt: -1 })
+tokenClaimSchema.index({ claimant: 1, status: 1 })
 tokenClaimSchema.index({ reviewedBy: 1, reviewedAt: -1 })
 tokenClaimSchema.index({ paymentType: 1 })
 

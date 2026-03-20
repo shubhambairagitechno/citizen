@@ -1166,8 +1166,6 @@ const approveProjectDecision = asyncHandler(async (req, res) => {
   await registration.save()
 
   if (decision === "active") {
-    const AllocationLimit = require("../models/AllocationLimit")
-
     const existingAllocation = await AllocationLimit.findOne({
       project: projectId,
       projectRegistration: registration._id,
