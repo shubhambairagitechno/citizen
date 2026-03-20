@@ -94,9 +94,8 @@ const registrationApprovalSchema = new mongoose.Schema(
   },
 )
 
-// Indexes — single standalone status index + specific compound indexes
-registrationApprovalSchema.index({ status: 1 })
-registrationApprovalSchema.index({ city: 1, applicationType: 1 })
+// Indexes
+registrationApprovalSchema.index({ city: 1, applicationType: 1, status: 1 })
 registrationApprovalSchema.index({ reviewedBy: 1 })
 registrationApprovalSchema.index({ submittedAt: -1 })
 

@@ -476,23 +476,22 @@ const getApprovedProjectsByCity = asyncHandler(async (req, res) => {
     return errorResponse(res, "Only citizen users can access this endpoint", 403)
   }
 
-  const { page = 1, limit = 10, projectType, search } = req.query
+  const { page = 1, limit = 10, projectType } = req.query
   const skip = (page - 1) * limit
 
   const userCity = req.user.city?.trim()
-  const userState = req.user.province?.trim()
-  const userCountry = req.user.country?.trim()
 
-  if (!userCity || !userState || !userCountry) {
-    return errorResponse(res, "User location information is incomplete", 400)
+  if (!userCity) {
+    return errorResponse(res, "Your profile is missing a city. Please update your profile before viewing city projects.", 400)
   }
 
+  // Filter on registration-level city (projects inherit city from registration on creation)
+  // AND only from government-approved registrations
+  // AND only projects that have been government-approved (active)
   const query = {
     status: "approved",
+    city: { $regex: new RegExp(`^${userCity}$`, "i") },
     "projects.projectStatus": "active",
-    "projects.city": { $regex: new RegExp(`^${userCity}$`, "i") },
-    "projects.state": { $regex: new RegExp(`^${userState}$`, "i") },
-    "projects.country": { $regex: new RegExp(`^${userCountry}$`, "i") },
   }
 
   if (projectType) {
@@ -509,27 +508,18 @@ const getApprovedProjectsByCity = asyncHandler(async (req, res) => {
   registrations.forEach((registration) => {
     const filteredProjects = registration.projects
       .filter((project) => {
+        // Only show projects explicitly approved (active) by government — never pending_approval
         if (project.projectStatus !== "active") return false
-
         if (projectType && project.projectType !== projectType) return false
-
-        if (
-          project.city?.toLowerCase() !== userCity.toLowerCase() ||
-          project.state?.toLowerCase() !== userState.toLowerCase() ||
-          project.country?.toLowerCase() !== userCountry.toLowerCase()
-        ) {
-          return false
-        }
-
         return true
       })
       .map((project) => ({
         _id: project._id,
         projectTitle: project.projectTitle,
         projectType: project.projectType,
-        state: project.state,
-        city: project.city,
-        country: project.country,
+        state: project.state || registration.state,
+        city: project.city || registration.city,
+        country: project.country || registration.country,
         projectDescription: project.projectDescription,
         contactInfo: project.contactInfo,
         documentation: formatDocumentation(project.documentation),
@@ -548,7 +538,6 @@ const getApprovedProjectsByCity = asyncHandler(async (req, res) => {
   })
 
   const total = projects.length
-
   const paginatedProjects = projects.slice(skip, skip + Number(limit))
 
   const pagination = {
