@@ -75,6 +75,6 @@ const allocationLimitSchema = new mongoose.Schema(
 allocationLimitSchema.index({ projectRegistration: 1, project: 1 }, { unique: true })
 allocationLimitSchema.index({ project: 1 })
 allocationLimitSchema.index({ setBy: 1 })
-allocationLimitSchema.index({ status: 1 })
+allocationLimitSchema.index({ projectRegistration: 1, status: 1 })
 
 module.exports = mongoose.model("AllocationLimit", allocationLimitSchema)

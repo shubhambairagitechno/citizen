@@ -142,7 +142,7 @@ const governmentSchema = new mongoose.Schema(
 
 // Indexes
 governmentSchema.index({ governmentName: 1, entityType: 1 })
-governmentSchema.index({ status: 1 })
 governmentSchema.index({ country: 1, province: 1, city: 1 })
+governmentSchema.index({ city: 1, status: 1 })
 
 module.exports = mongoose.model("government", governmentSchema)

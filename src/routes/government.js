@@ -136,10 +136,6 @@ const {
   approveTokenRequest,
   rejectTokenRequest,
 } = require("../controllers/governmentController")
-
-const {
-  approveProjectDecision,
-} = require("../controllers/socialProjectRegistrationController")
 const { protect, authorize } = require("../middleware/auth")
 const {
   governmentRegisterStep1Validation,
@@ -163,6 +159,7 @@ router.post("/citizens/:citizenId/approve", protect, authorize("government"), ap
 router.post("/citizens/:citizenId/reject", protect, authorize("government"), rejectCitizen)
 
 // Social Project Registration Reviews — approve/reject the REGISTRATION (org-level)
+// To approve individual projects use: PUT /api/social-projects/:projectId/approve
 router.get("/registrations/projects", protect, authorize("government"), getPendingSocialProjectRegistrations)
 router.post(
   "/registrations/projects/:projectId/approve",
@@ -175,22 +172,6 @@ router.post(
   protect,
   authorize("government"),
   rejectSocialProjectRegistration,
-)
-
-// Individual project approval — approve/reject a SINGLE PROJECT subdocument inside an approved registration
-// :registrationId = the SocialProjectRegistration document _id
-// :projectId      = the _id of the project subdocument inside registration.projects[]
-router.post(
-  "/registrations/projects/:registrationId/projects/:projectId/approve",
-  protect,
-  authorize("government"),
-  approveProjectDecision,
-)
-router.post(
-  "/registrations/projects/:registrationId/projects/:projectId/reject",
-  protect,
-  authorize("government"),
-  approveProjectDecision,
 )
 
 // Token Claim Reviews

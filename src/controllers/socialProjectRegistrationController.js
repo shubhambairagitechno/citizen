@@ -1,6 +1,7 @@
 const SocialProjectRegistration = require("../models/SocialProjectRegistration")
 const User = require("../models/User")
-const AllocationLimit = require("../models/AllocationLimit") // Import AllocationLimit
+const Government = require("../models/Government")
+const AllocationLimit = require("../models/AllocationLimit")
 const ProjectSupport = require("../models/ProjectSupport") // Import ProjectSupport
 const TokenTransaction = require("../models/TokenTransaction") // Import TokenTransaction
 const asyncHandler = require("../utils/asyncHandler")
@@ -183,7 +184,6 @@ const getPendingRegistrations = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit
 
   // Load the Government profile to get the authoritative city/province/country
-  const Government = require("../models/Government")
   const government = await Government.findOne({ userId: req.user._id })
   if (!government) {
     return errorResponse(res, "Government profile not found", 404)
@@ -1030,7 +1030,6 @@ const getPendingProjectsApproval = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit
 
   // Load Government profile to get the authoritative city
-  const Government = require("../models/Government")
   const government = await Government.findOne({ userId: req.user._id })
   if (!government) {
     return errorResponse(res, "Government profile not found", 404)
@@ -1119,7 +1118,6 @@ const approveProjectDecision = asyncHandler(async (req, res) => {
   }
 
   // Load government profile to get authoritative city
-  const Government = require("../models/Government")
   const government = await Government.findOne({ userId: req.user._id })
   if (!government) {
     return errorResponse(res, "Government profile not found", 404)
