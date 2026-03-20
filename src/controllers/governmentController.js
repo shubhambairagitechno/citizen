@@ -365,9 +365,6 @@ const approveSocialProjectRegistration = asyncHandler(async (req, res) => {
   }
 
   project.status = "approved"
-  project.approvalStatus = "approved" // Set approval status for token operations
-  project.approvalStatusUpdatedAt = new Date()
-  project.approvalStatusUpdatedBy = req.user._id
   project.approvedBy = req.user._id
   project.approvedAt = new Date()
   if (approvalNotes) {
@@ -393,17 +390,8 @@ const approveSocialProjectRegistration = asyncHandler(async (req, res) => {
     isGovernmentApproveProject: true,
   })
 
-  // Update all projects under this registration to be visible in this city
-  if (project.projects && project.projects.length > 0) {
-    project.projects.forEach((proj) => {
-      if (proj.projectStatus === "pending_approval") {
-        proj.projectStatus = "active"
-        proj.approvedBy = req.user._id
-        proj.approvedAt = new Date()
-      }
-    })
-    await project.save()
-  }
+  // NOTE: Individual projects inside this registration still require separate government approval
+  // via PUT /api/social-projects/:projectId/approve before they become visible to citizens.
 
   // Send approval email
   await sendEmail({
@@ -439,9 +427,7 @@ const rejectSocialProjectRegistration = asyncHandler(async (req, res) => {
   }
 
   project.status = "rejected"
-  project.approvalStatus = "rejected" // Set approval status for token operations
-  project.approvalStatusUpdatedAt = new Date()
-  project.approvalStatusUpdatedBy = req.user._id
+  project.approvedBy = req.user._id
   project.rejectionReason = rejectionReason
   await project.save()
 

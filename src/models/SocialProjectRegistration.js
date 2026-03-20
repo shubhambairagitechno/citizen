@@ -99,25 +99,11 @@ const socialProjectRegistrationSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Registration Status (requires government approval)
+    // Registration Status — must be approved by government before user can create projects
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
-      default: "pending", // Pending government approval
-    },
-
-    // Approval status for token operations (does not affect visibility)
-    approvalStatus: {
-      type: String,
-      enum: ["pending", "approved", "rejected"],
       default: "pending",
-    },
-
-    approvalStatusUpdatedAt: Date,
-
-    approvalStatusUpdatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
     },
 
     // Approval Information
@@ -243,7 +229,6 @@ const socialProjectRegistrationSchema = new mongoose.Schema(
 socialProjectRegistrationSchema.index({ user: 1 })
 socialProjectRegistrationSchema.index({ status: 1 })
 socialProjectRegistrationSchema.index({ submittedAt: -1 })
-socialProjectRegistrationSchema.index({ approvalStatus: 1 })
-socialProjectRegistrationSchema.index({ city: 1, approvalStatus: 1 })
+socialProjectRegistrationSchema.index({ city: 1, status: 1 })
 
 module.exports = mongoose.model("SocialProjectRegistration", socialProjectRegistrationSchema)

@@ -347,12 +347,10 @@ const createProject = asyncHandler(async (req, res) => {
       email,
     },
     documentation,
-    projectStatus: "active", // Set to active immediately for social projects
+    projectStatus: "pending_approval", // Awaiting government approval — NOT active until government approves
     publishedAt: new Date(),
-    approvedBy: req.user._id, // Self-approved
-    approvedAt: new Date(),
-    fundingGoal: fundingGoal || 0, // Set funding goal if provided
-    allocationSet: fundingGoal ? true : false, // Mark allocation as set if funding goal provided
+    fundingGoal: 0, // Will be set by government during approval
+    allocationSet: false,
     tokensFunded: 0,
   }
 
@@ -361,22 +359,7 @@ const createProject = asyncHandler(async (req, res) => {
 
   const createdProject = registration.projects[registration.projects.length - 1]
 
-  if (fundingGoal && fundingGoal > 0) {
-    const citizenTokenLimit = Math.floor(fundingGoal * 0.1) // Default: 10% of funding goal per citizen
-
-    await AllocationLimit.create({
-      projectRegistration: registration._id,
-      project: createdProject._id,
-      citizenTokenLimit: citizenTokenLimit,
-      projectTokenLimit: fundingGoal,
-      setBy: req.user._id,
-      setAt: new Date(),
-      status: "active",
-      notes: `Auto-created for social project - no government approval needed`,
-    })
-  }
-
-  successResponse(res, "Project created and published successfully", {
+  successResponse(res, "Project submitted for government approval. It will be visible to citizens once approved.", {
     project: createdProject,
     registration,
   })

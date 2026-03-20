@@ -47,7 +47,7 @@ const refreshTokenSchema = new mongoose.Schema(
 // Index for automatic cleanup of expired tokens
 refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 refreshTokenSchema.index({ user: 1 })
-refreshTokenSchema.index({ token: 1 })
+// Note: token index is already created via unique:true in the schema field definition
 
 // Static method to cleanup expired tokens
 refreshTokenSchema.statics.cleanupExpired = function () {

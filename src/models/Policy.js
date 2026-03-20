@@ -67,7 +67,7 @@ const policySchema = new mongoose.Schema(
 )
 
 // Indexes for faster queries
-policySchema.index({ policyType: 1 })
+// Note: policyType index is already created via unique:true in the schema field definition
 policySchema.index({ isActive: 1 })
 policySchema.index({ createdAt: -1 })
 

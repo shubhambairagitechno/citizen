@@ -230,8 +230,7 @@ const userSchema = new mongoose.Schema(
 )
 
 // Indexes for better query performance
-userSchema.index({ email: 1 })
-userSchema.index({ username: 1 })
+// Note: email and username indexes are already created via unique:true in the schema field definitions
 userSchema.index({ userType: 1 })
 userSchema.index({ isActive: 1 })
 userSchema.index({ isSuperAdminVerified: 1 })
