@@ -87,11 +87,11 @@ const tokenRequestSchema = new mongoose.Schema(
   },
 )
 
-// Indexes
+// Indexes — { city, status } covers status queries; separate createdAt for time-based sorts
 tokenRequestSchema.index({ requestedBy: 1, createdAt: -1 })
-tokenRequestSchema.index({ status: 1, createdAt: -1 })
+tokenRequestSchema.index({ createdAt: -1 })
 tokenRequestSchema.index({ reviewedBy: 1, reviewedAt: -1 })
 tokenRequestSchema.index({ city: 1, status: 1 })
-tokenRequestSchema.index({ requestedBy: 1, claimStatus: 1 }) // For pending claims lookup
+tokenRequestSchema.index({ requestedBy: 1, claimStatus: 1 })
 
 module.exports = mongoose.model("TokenRequest", tokenRequestSchema)

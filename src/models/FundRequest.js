@@ -102,10 +102,9 @@ const fundRequestSchema = new mongoose.Schema(
   },
 )
 
-// Indexes
+// Indexes — { city, status } and { requestedBy, status } cover all status-based queries
 fundRequestSchema.index({ projectId: 1, createdAt: -1 })
 fundRequestSchema.index({ requestedBy: 1, status: 1 })
-fundRequestSchema.index({ status: 1, createdAt: -1 })
 fundRequestSchema.index({ reviewedBy: 1, reviewedAt: -1 })
 fundRequestSchema.index({ city: 1, status: 1 })
 

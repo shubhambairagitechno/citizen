@@ -1098,10 +1098,11 @@ const approveProjectDecision = asyncHandler(async (req, res) => {
     return errorResponse(res, "Only government users can approve projects", 403)
   }
 
-  const { projectId } = req.params
+  // projectId is the subdocument _id inside registration.projects[]
+  const projectId = req.params.projectId
   const { decision, rejectionReason, fundingGoal, citizenTokenLimit } = req.body
 
-  if (!["active", "rejected"].includes(decision)) {
+  if (!decision || !["active", "rejected"].includes(decision)) {
     return errorResponse(res, "Decision must be 'active' or 'rejected'", 400)
   }
 
@@ -1117,25 +1118,39 @@ const approveProjectDecision = asyncHandler(async (req, res) => {
     }
   }
 
+  // Load government profile to get authoritative city
+  const Government = require("../models/Government")
+  const government = await Government.findOne({ userId: req.user._id })
+  if (!government) {
+    return errorResponse(res, "Government profile not found", 404)
+  }
+
+  // Find the registration that contains this project subdocument
+  // The registration must be approved AND in the government's city
   const registration = await SocialProjectRegistration.findOne({
     status: "approved",
     "projects._id": projectId,
+    city: { $regex: new RegExp(`^${government.city.trim()}$`, "i") },
   }).populate("user", "fullName email")
 
   if (!registration) {
-    return errorResponse(res, "Project not found", 404)
+    return errorResponse(
+      res,
+      "Project not found, or the registration is not approved, or it belongs to a different city",
+      404,
+    )
   }
 
   const projectIndex = registration.projects.findIndex((p) => p._id.toString() === projectId)
 
   if (projectIndex === -1) {
-    return errorResponse(res, "Project not found", 404)
+    return errorResponse(res, "Project not found in registration", 404)
   }
 
   const project = registration.projects[projectIndex]
 
   if (project.projectStatus !== "pending_approval") {
-    return errorResponse(res, "Project has already been processed", 400)
+    return errorResponse(res, `Project has already been processed (current status: ${project.projectStatus})`, 400)
   }
 
   project.projectStatus = decision
