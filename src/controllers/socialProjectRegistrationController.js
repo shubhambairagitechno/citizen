@@ -89,7 +89,7 @@ const submitSocialProjectRegistration = asyncHandler(async (req, res) => {
     emailAddress,
     documents,
     registrationNotes,
-    status: "approved", // Automatically approved - no government approval needed
+    status: "pending", // Requires government approval before projects can be created
   })
 
   // Update user's isRegistrationProjectDone to true
@@ -103,7 +103,7 @@ const submitSocialProjectRegistration = asyncHandler(async (req, res) => {
 
     successResponse(
       res,
-      "Social project registration submitted successfully. You can now create projects.",
+      "Social project registration submitted successfully. Awaiting government approval to create projects.",
       responseData,
       201,
     )
@@ -273,6 +273,11 @@ const createProject = asyncHandler(async (req, res) => {
   // User must have submitted project registration before creating projects
   if (!registration) {
     return errorResponse(res, "You must submit a project registration first before creating projects", 403)
+  }
+
+  // Registration must be approved by government before creating projects
+  if (registration.status !== "approved") {
+    return errorResponse(res, "Your registration must be approved by government before creating projects. Current status: " + registration.status, 403)
   }
 
   const {

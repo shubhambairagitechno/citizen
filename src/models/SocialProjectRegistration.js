@@ -99,11 +99,11 @@ const socialProjectRegistrationSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Registration Status (legacy field for backward compatibility)
+    // Registration Status (requires government approval)
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
-      default: "approved", // Auto-approve for visibility
+      default: "pending", // Pending government approval
     },
 
     // Approval status for token operations (does not affect visibility)
