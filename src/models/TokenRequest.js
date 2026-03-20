@@ -20,7 +20,6 @@ const tokenRequestSchema = new mongoose.Schema(
     city: {
       type: String,
       required: true,
-      index: true,
     },
 
     // Proof Documents (image or PDF)
@@ -42,7 +41,6 @@ const tokenRequestSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "under_review", "approved", "rejected"],
       default: "pending",
-      index: true,
     },
 
     // Government Review

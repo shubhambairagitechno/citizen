@@ -485,13 +485,12 @@ const getApprovedProjectsByCity = asyncHandler(async (req, res) => {
     return errorResponse(res, "Your profile is missing a city. Please update your profile before viewing city projects.", 400)
   }
 
-  // Filter on registration-level city (projects inherit city from registration on creation)
-  // AND only from government-approved registrations
-  // AND only projects that have been government-approved (active)
+  // Fetch ALL projects from same city regardless of projectStatus.
+  // Citizens can VIEW unapproved projects — token support is blocked inside supportProjectWithTokens.
+  // Only require the registration itself to be government-approved (status:"approved").
   const query = {
     status: "approved",
     city: { $regex: new RegExp(`^${userCity}$`, "i") },
-    "projects.projectStatus": "active",
   }
 
   if (projectType) {
@@ -508,8 +507,6 @@ const getApprovedProjectsByCity = asyncHandler(async (req, res) => {
   registrations.forEach((registration) => {
     const filteredProjects = registration.projects
       .filter((project) => {
-        // Only show projects explicitly approved (active) by government — never pending_approval
-        if (project.projectStatus !== "active") return false
         if (projectType && project.projectType !== projectType) return false
         return true
       })
@@ -528,7 +525,8 @@ const getApprovedProjectsByCity = asyncHandler(async (req, res) => {
         organizationState: registration.state,
         createdBy: registration.user,
         registrationId: registration._id,
-        projectStatus: project.projectStatus,
+        projectStatus: project.projectStatus,   // "pending_approval" | "active" — citizen can see both
+        canSupport: project.projectStatus === "active", // frontend uses this to show/hide support button
         fundingGoal: project.fundingGoal,
         tokensFunded: project.tokensFunded,
         createdAt: project.publishedAt,
@@ -561,45 +559,39 @@ const getActiveProjectsPublic = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, projectType, state, city, country, search } = req.query
   const skip = (page - 1) * limit
 
-  // Build base filter - only approved registrations
+  // Build base filter — only government-approved registrations
   const filter = {
     status: "approved",
   }
 
-  // Build $elemMatch for filtering projects array
-  const projectElemMatch = {
-    projectStatus: "active",
-  }
+  // Build $elemMatch for filtering projects array — NO projectStatus filter here.
+  // All projects from approved registrations are visible; token support is blocked per-project inside supportProjectWithTokens.
+  const projectElemMatch = {}
 
-  // CITIZEN USER: Automatically filter by their city, province, country
-  if (req.user && req.user.userType === "citizen") {
-    if (req.user.city) {
-      projectElemMatch.city = { $regex: new RegExp(`^${req.user.city.trim()}$`, "i") }
-    }
-    if (req.user.province) {
-      projectElemMatch.state = { $regex: new RegExp(`^${req.user.province.trim()}$`, "i") }
-    }
-    if (req.user.country) {
-      projectElemMatch.country = { $regex: new RegExp(`^${req.user.country.trim()}$`, "i") }
-    }
+  // CITIZEN: auto-filter by their city
+  if (req.user && req.user.userType === "citizen" && req.user.city) {
+    filter.city = { $regex: new RegExp(`^${req.user.city.trim()}$`, "i") }
   } else {
-    // NON-CITIZEN: Use query parameters if provided
-    if (projectType) {
-      projectElemMatch.projectType = projectType
+    // NON-CITIZEN: use optional query params
+    if (city) {
+      filter.city = { $regex: new RegExp(`^${city.trim()}$`, "i") }
     }
     if (state) {
       projectElemMatch.state = { $regex: new RegExp(`^${state}$`, "i") }
-    }
-    if (city) {
-      projectElemMatch.city = { $regex: new RegExp(`^${city}$`, "i") }
     }
     if (country) {
       projectElemMatch.country = { $regex: new RegExp(`^${country}$`, "i") }
     }
   }
 
-  // Add projects filter to main filter
-  filter.projects = { $elemMatch: projectElemMatch }
+  if (projectType) {
+    projectElemMatch.projectType = projectType
+  }
+
+  // Only add $elemMatch if we have project-level filters
+  if (Object.keys(projectElemMatch).length > 0) {
+    filter.projects = { $elemMatch: projectElemMatch }
+  }
 
   // Fetch registrations matching filter
   const [registrations, total] = await Promise.all([
@@ -613,17 +605,16 @@ const getActiveProjectsPublic = asyncHandler(async (req, res) => {
     SocialProjectRegistration.countDocuments(filter),
   ])
 
-  // Extract and format active projects from registrations
+  // Extract and format all projects — citizens can see pending_approval too; token support blocked separately
   const projects = registrations.flatMap((registration) =>
     registration.projects
-      .filter((project) => project.projectStatus === "active")
       .map((project) => ({
         _id: project._id,
         projectTitle: project.projectTitle,
         projectType: project.projectType,
-        state: project.state,
-        city: project.city,
-        country: project.country,
+        state: project.state || registration.state,
+        city: project.city || registration.city,
+        country: project.country || registration.country,
         projectDescription: project.projectDescription,
         contactInfo: project.contactInfo,
         documentation: formatDocumentation(project.documentation),
@@ -633,6 +624,7 @@ const getActiveProjectsPublic = asyncHandler(async (req, res) => {
         createdBy: registration.user,
         registrationId: registration._id,
         projectStatus: project.projectStatus,
+        canSupport: project.projectStatus === "active",
         fundingGoal: project.fundingGoal,
         tokensFunded: project.tokensFunded,
         createdAt: project.publishedAt,
@@ -740,10 +732,8 @@ const supportProjectWithTokens = asyncHandler(async (req, res) => {
   const registration = await SocialProjectRegistration.findOne({
     status: "approved",
     "projects._id": projectId,
-    // CITY-BASED FILTERING: Only citizens from the same city can contribute
-    city: req.user.city,
-    country: req.user.country,
-    state: req.user.province,
+    // City-based isolation: only citizens from the same city can contribute
+    city: { $regex: new RegExp(`^${req.user.city?.trim()}$`, "i") },
   })
 
   if (!registration) {

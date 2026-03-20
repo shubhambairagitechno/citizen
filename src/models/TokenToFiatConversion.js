@@ -101,7 +101,6 @@ const tokenToFiatConversionSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "approved_by_government", "paid", "rejected", "cancelled"],
       default: "pending",
-      index: true,
     },
 
     // Government Approval

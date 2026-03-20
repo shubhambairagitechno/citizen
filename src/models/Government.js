@@ -116,7 +116,6 @@ const governmentSchema = new mongoose.Schema(
     isSuperAdminVerified: {
       type: Boolean,
       default: false,
-      index: true,
     },
 
     consentContactBeforeActivation: {
