@@ -75,21 +75,33 @@ const submitSocialProjectRegistration = asyncHandler(async (req, res) => {
     }
   }
 
-  // Use user's province from User model, not request body (for consistency)
+  // Derive location: prefer body values, fall back to user profile
+  const registrationCity = (city || req.user.city || "").trim()
+  const registrationState = (state || req.user.province || "").trim()
+  const registrationCountry = (country || req.user.country || "").trim()
+
+  if (!registrationCity || !registrationState || !registrationCountry) {
+    return errorResponse(
+      res,
+      "City, state and country are required. Please complete your profile location or provide them in the request.",
+      400,
+    )
+  }
+
   const registration = await SocialProjectRegistration.create({
     user: req.user._id,
     projectOrganizationName,
     allowedProjectTypes,
-    state: req.user.province,
-    city: req.user.city,
-    country: req.user.country,
+    state: registrationState,
+    city: registrationCity,
+    country: registrationCountry,
     responsiblePersonFullName,
     personPositionRole,
     contactNumber,
     emailAddress,
     documents,
     registrationNotes,
-    status: "pending", // Requires government approval before projects can be created
+    status: "pending", // Requires government approval — NOT auto-approved
   })
 
   // Update user's isRegistrationProjectDone to true
@@ -135,12 +147,28 @@ const getMyRegistration = asyncHandler(async (req, res) => {
   successResponse(res, "Social project registration retrieved successfully", responseData)
 })
 
-// @desc    Get all projects s
+// @desc    Get all ACTIVE projects (PUBLIC - no auth)
 // @route   GET /api/social-projects
 const getAllProjects = asyncHandler(async (req, res) => {
-  const registrations = await SocialProjectRegistration.find().sort({ createdAt: -1 })
-  const projects = registrations.flatMap((reg) => reg.projects || [])
-  successResponse(res, "All projects retrieved", projects)
+  // Only return active projects from approved registrations — never expose pending_approval projects
+  const registrations = await SocialProjectRegistration.find({
+    status: "approved",
+    "projects.projectStatus": "active",
+  })
+    .select("projectOrganizationName city state country projects")
+    .sort({ createdAt: -1 })
+    .lean()
+
+  const projects = registrations.flatMap((reg) =>
+    (reg.projects || [])
+      .filter((p) => p.projectStatus === "active")
+      .map((p) => ({
+        ...p,
+        organizationName: reg.projectOrganizationName,
+        organizationCity: reg.city,
+      })),
+  )
+  successResponse(res, "Active projects retrieved", projects)
 })
 
 // @desc    Get all pending social project registrations (Government only)
@@ -215,6 +243,17 @@ const processSocialProjectDecision = asyncHandler(async (req, res) => {
 
   if (!registration) {
     return errorResponse(res, "Social project registration not found", 404)
+  }
+
+  // Load government profile and verify this registration belongs to their city
+  const Government = require("../models/Government")
+  const government = await Government.findOne({ userId: req.user._id })
+  if (!government) {
+    return errorResponse(res, "Government profile not found", 404)
+  }
+
+  if (registration.city?.toLowerCase() !== government.city?.toLowerCase()) {
+    return errorResponse(res, "Cannot process a registration from a different city", 403)
   }
 
   if (registration.status !== "pending") {
@@ -341,9 +380,11 @@ const createProject = asyncHandler(async (req, res) => {
   const newProject = {
     projectTitle,
     projectType,
-    state,
-    city,
-    country,
+    // Always inherit city/state/country from the approved registration so the
+    // government's city-scoped query always finds these projects
+    state: registration.state,
+    city: registration.city,
+    country: registration.country,
     projectDescription,
     startDate,
     endDate,
@@ -352,9 +393,9 @@ const createProject = asyncHandler(async (req, res) => {
       email,
     },
     documentation,
-    projectStatus: "pending_approval", // Awaiting government approval — NOT active until government approves
+    projectStatus: "pending_approval", // NOT active — requires government approval
     publishedAt: new Date(),
-    fundingGoal: 0, // Will be set by government during approval
+    fundingGoal: 0,  // Set by government during project approval
     allocationSet: false,
     tokensFunded: 0,
   }

@@ -231,12 +231,12 @@ const userSchema = new mongoose.Schema(
 
 // Indexes for better query performance
 // Note: email and username indexes are already created via unique:true in the schema field definitions
+// Note: approvalStatus standalone index removed — covered by the compound { city, approvalStatus } index
 userSchema.index({ userType: 1 })
 userSchema.index({ isActive: 1 })
 userSchema.index({ isSuperAdminVerified: 1 })
 userSchema.index({ isRegistrationProjectDone: 1 })
 userSchema.index({ createdAt: -1 })
-userSchema.index({ approvalStatus: 1 })
 userSchema.index({ city: 1, approvalStatus: 1 })
 
 // Virtual for user's full profile URL

@@ -94,8 +94,9 @@ const registrationApprovalSchema = new mongoose.Schema(
   },
 )
 
-// Indexes — use only the most specific compound indexes to avoid duplicate field warnings
-registrationApprovalSchema.index({ city: 1, applicationType: 1, status: 1 })
+// Indexes — single standalone status index + specific compound indexes
+registrationApprovalSchema.index({ status: 1 })
+registrationApprovalSchema.index({ city: 1, applicationType: 1 })
 registrationApprovalSchema.index({ reviewedBy: 1 })
 registrationApprovalSchema.index({ submittedAt: -1 })
 
